@@ -1,0 +1,69 @@
+buildscript {
+	repositories {
+		mavenCentral()
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7'
+	}
+}
+
+allprojects {
+	repositories {
+		mavenCentral()
+	}
+
+	group = GROUP
+	version = VERSION_NAME
+
+	apply plugin: 'maven'
+}
+
+apply plugin: 'groovy'
+apply plugin: 'nexus'
+
+
+targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_7
+
+dependencies {
+	compile gradleApi()
+	compile localGroovy()
+	compile 'com.android.tools.build:gradle:1.1.0-rc3'
+	compile 'org.aspectj:aspectjtools:1.8.5'
+	compile 'org.aspectj:aspectjrt:1.8.5'
+	compile 'com.google.api-client:google-api-client:1.18.0-rc'
+	compile 'com.google.apis:google-api-services-translate:v2-rev41-1.20.0'
+	compile 'commons-lang:commons-lang:2.6'
+}
+
+
+modifyPom {
+	project {
+		name "Androlate Plugin"
+		description POM_DESCRIPTION
+		url POM_URL
+
+		scm {
+			url POM_SCM_URL
+			connection POM_SCM_CONNECTION
+			developerConnection POM_SCM_DEV_CONNECTION
+		}
+
+		licenses {
+			license {
+				name POM_LICENCE_NAME
+				url POM_LICENCE_URL
+				distribution POM_LICENCE_DIST
+			}
+		}
+
+		developers {
+			developer {
+				id POM_DEVELOPER_ID
+				name POM_DEVELOPER_NAME
+			}
+		}
+	}
+}
