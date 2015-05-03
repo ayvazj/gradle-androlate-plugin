@@ -3,14 +3,9 @@
 buildscript {
     repositories {
         jcenter()
-        repositories { flatDir name: 'androlate', dirs: "/Volumes/Source/github.com/gradle-androlate-plugin/build/libs" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.0.0'
-        classpath 'com.google.api-client:google-api-client:1.18.0-rc'
-        classpath 'com.google.apis:google-api-services-translate:v2-rev41-1.20.0'
-
-        classpath 'com.github.ayvazj.gradle.plugins.androlate:androlate:0.5-SNAPSHOT'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -19,5 +14,5 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-  }
+    }
 }

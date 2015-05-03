@@ -1,3 +1,15 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url  "https://dl.bintray.com/ayvazj/maven"
+        }
+    }
+    dependencies {
+        classpath('com.github.ayvazj.gradle.plugins.androlate:androlate:0.1')
+    }
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'androlate'
 
@@ -25,6 +37,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile project(':hellolibrary')
 }
+
 
 androlate {
     appName 'API Project'

@@ -5,7 +5,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7'
+		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
 	}
 }
 
@@ -17,53 +17,110 @@ allprojects {
 	group = GROUP
 	version = VERSION_NAME
 
-	apply plugin: 'maven'
 }
 
 apply plugin: 'groovy'
-apply plugin: 'nexus'
+apply plugin: 'maven'
+apply plugin: 'signing'
+apply plugin: 'com.jfrog.bintray'
 
-
-targetCompatibility = JavaVersion.VERSION_1_7
-sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = 1.6
+sourceCompatibility = 1.6
 
 dependencies {
 	compile gradleApi()
 	compile localGroovy()
 	compile 'com.android.tools.build:gradle:1.1.0-rc3'
-	compile 'org.aspectj:aspectjtools:1.8.5'
-	compile 'org.aspectj:aspectjrt:1.8.5'
 	compile 'com.google.api-client:google-api-client:1.18.0-rc'
 	compile 'com.google.apis:google-api-services-translate:v2-rev41-1.20.0'
 	compile 'commons-lang:commons-lang:2.6'
 }
 
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.0'
+}
 
-modifyPom {
-	project {
-		name "Androlate Plugin"
-		description POM_DESCRIPTION
-		url POM_URL
+task javadocJar(type: Jar) {
+	classifier = 'javadoc'
+	from javadoc
+}
 
-		scm {
-			url POM_SCM_URL
-			connection POM_SCM_CONNECTION
-			developerConnection POM_SCM_DEV_CONNECTION
-		}
+task sourcesJar(type: Jar) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
 
-		licenses {
-			license {
-				name POM_LICENCE_NAME
-				url POM_LICENCE_URL
-				distribution POM_LICENCE_DIST
+artifacts {
+	archives javadocJar, sourcesJar
+}
+
+signing {
+	sign configurations.archives
+}
+
+
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+			repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
 			}
-		}
 
-		developers {
-			developer {
-				id POM_DEVELOPER_ID
-				name POM_DEVELOPER_NAME
+			snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
+
+			pom.project {
+				name 'Androlate Plugin'
+				// optionally artifactId can be defined here
+				description POM_DESCRIPTION
+				url POM_URL
+
+				scm {
+					connection POM_SCM_CONNECTION
+					developerConnection POM_SCM_DEV_CONNECTION
+					url POM_SCM_URL
+				}
+
+				licenses {
+					license {
+						name POM_LICENCE_NAME
+						url POM_LICENCE_URL
+						distribution POM_LICENCE_DIST
+					}
+				}
+
+				developers {
+					developer {
+						id POM_DEVELOPER_ID
+						name POM_DEVELOPER_NAME
+					}
+				}
 			}
 		}
 	}
+}
+
+bintray {
+	user = bintrayUsername
+	key = bintrayKey
+
+	configurations = ['archives']
+	pkg {
+		repo = "maven"
+		name = "Androlate"
+		//userOrg = 'myorg' //An optional organization name when the repo belongs to one of the user's orgs
+		desc = POM_DESCRIPTION
+		websiteUrl = POM_URL
+		//issueTrackerUrl = 'https://github.com/bintray/gradle-bintray-plugin/issues'
+		vcsUrl = POM_SCM_URL
+		licenses = ["Apache-2.0"]
+		labels = ['android', 'translate', 'i18n', 'internationalization', 'translations']
+		// publicDownloadNumbers = true
+		// attributes= ['a': ['ay1', 'ay2'], 'b': ['bee'], c: 'cee'] //Optional package-level attributes
+	}
+	publish = true
 }
