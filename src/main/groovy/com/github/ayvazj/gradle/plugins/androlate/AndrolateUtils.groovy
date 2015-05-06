@@ -1,6 +1,7 @@
 package com.github.ayvazj.gradle.plugins.androlate
 
 import java.security.MessageDigest
+import java.util.regex.Pattern
 
 
 class AndrolateUtils {
@@ -50,16 +51,18 @@ class AndrolateUtils {
 
         String result = instr
         REPLACE_MAP.each { String k, String v ->
-            result = result.replace(k, " ${v} ")
+            result = result.replace(k, "${v}")
         }
         result = "<span lang=\"" + lang + "\">" + result + "</span>"
         return result
     }
 
     def public static String googleTranslateResolve(String instr) {
+
         String result = replaceLast(instr, "</span>", "")
         REPLACE_MAP.each { k, v ->
             result = result.replace(" ${v} ", k)
+            result = result.replace(v, k)
         }
         result = result.replaceFirst("\\<span.*?\\>", "")
         return result
@@ -79,7 +82,7 @@ class AndrolateUtils {
      * @return
      */
     def public static String convertToAppleFormatting(String instr) {
-        String result = replaceLast(instr, "</span>", "")
+        String result = instr
         IOS_REPLACE_MAP.each { k, v ->
             result = result.replace(k, v)
         }

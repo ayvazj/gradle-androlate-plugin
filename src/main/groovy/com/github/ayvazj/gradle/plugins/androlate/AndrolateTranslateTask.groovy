@@ -6,12 +6,15 @@ import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.translate.Translate
 import com.google.api.services.translate.model.TranslationsResource
+import groovy.xml.DOMBuilder
 import groovy.xml.Namespace
 import groovy.xml.XmlUtil
 import org.apache.commons.lang.StringEscapeUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleScriptException
+import org.gradle.api.logging.LogLevel
 import org.gradle.api.tasks.TaskAction
+import org.w3c.dom.Element
 
 class AndrolateTranslateTask extends DefaultTask {
 
@@ -110,17 +113,28 @@ class AndrolateTranslateTask extends DefaultTask {
             return;
         }
 
-        def srcparser = new XmlParser()
-        def srcxml = srcparser.parse(file)
+        def srcreader = new FileReader(file)
+        def srcparser
+        try {
+            srcparser = DOMBuilder.newInstance().parse(srcreader)
+        }
+        catch (Exception e) {
+            throw new GradleScriptException("Error parsing ${file.getName()}", e)
+        }
 
+        if (!srcparser) {
+            return
+        }
+
+        def Element srcxml = srcparser.documentElement
         // ignore XML files that are not resource files
-        if (!srcxml.name().equals('resources')) {
+        if (!srcxml.getNodeName().equals('resources')) {
             return
         }
 
         def List<AndrolateBaseElement> stringsdirty = new ArrayList<AndrolateBaseElement>()
-        srcxml.children().each { child ->
-            if ("string".equals(child.name()) || "string-array".equals(child.name())) {
+        srcxml.getChildNodes().each { child ->
+            if ("string".equals(child.getNodeName()) || "string-array".equals(child.getNodeName())) {
                 AndrolateBaseElement abelem = AndrolateBaseElement.newInstance(child)
                 if (abelem.isDirty()) {
                     abelem.updateMd5()
@@ -134,35 +148,58 @@ class AndrolateTranslateTask extends DefaultTask {
         }
 
         // Add the md5 sum to the sources to avoid resending unchanged strings
-        srcxml.'@xmlns:androlate' = 'http://com.github.androlate'
+        srcxml.setAttribute("xmlns:${Androlate.NAMESPACE.prefix}", Androlate.NAMESPACE.getUri().toString())
 
         // save the modified source file
-        def outwriter = new FileWriter('out.xml')
+        def backfn = AndrolateUtils.findBackupFilename(file)
+        if (!backfn) {
+            throw new GradleScriptException("Unable to create backup file")
+        }
+
+        File backFile = new File(backfn)
+        logger.log(LogLevel.INFO, "Renaming ${file.getName()} to ${backFile.getName()}")
+
+        file.renameTo(backfn)
+        def outwriter = new FileWriter(file.getPath())
         XmlUtil.serialize(srcxml, outwriter)
 
         androlate.targetLanguages.each { lang ->
             def destdir = new File("${dir.path}-${lang}")
             def destfile = new File("${destdir.path}/${file.getName()}")
-            def destxml = null
 
             destdir.mkdirs()
-            def destparser = new XmlParser()
+            def destparser
+
             if (destfile.exists()) {
-                destxml = destparser.parse(destfile)
+                def destreader = new FileReader(destfile)
+                try {
+                    destparser = DOMBuilder.newInstance().parse(destreader)
+                }
+                catch (Exception e) {
+                    throw new GradleScriptException("Error parsing ${destfile}", e)
+                }
             } else {
                 // create the destination document
-                destxml = destparser.parseText('''<?xml version='1.0' encoding='utf-8'?><resources></resources>''')
+                try {
+                    destparser = DOMBuilder.newInstance().parseText('''<?xml version='1.0' encoding='utf-8'?>\n<resources></resources>''')
+                }
+                catch (Exception e) {
+                    throw new GradleScriptException("Error parsing ${destfile}", e)
+                }
             }
+
+            def destxml = destparser.documentElement
 
             List<TranslationsResource> xlated_strings = new ArrayList<TranslationsResource>()
             getChunkedTranslations(stringsdirty, xlated_strings, lang)
 
-            println("  Target Language : ${lang}")
 
             def i = 0
             while (i < stringsdirty.size()) {
                 def incby = stringsdirty[i].getTextCount()
-                stringsdirty[i].updateDestXml(destxml, xlated_strings[i..<(i+incby)])
+                if (incby < xlated_strings.size()) {
+                    stringsdirty[i].updateDestXml(destxml, xlated_strings[i..<(i + incby)])
+                }
                 i += incby
             }
 

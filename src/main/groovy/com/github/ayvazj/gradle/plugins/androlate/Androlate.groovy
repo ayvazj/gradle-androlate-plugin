@@ -4,5 +4,5 @@ import groovy.xml.Namespace
 
 
 class Androlate {
-    public static final Namespace NAMESPACE = new Namespace("http://com.github.androlate", 'androlate')
+    public static final Namespace NAMESPACE = new Namespace("http://com.github.androlate", 'xandrolate')
 }
