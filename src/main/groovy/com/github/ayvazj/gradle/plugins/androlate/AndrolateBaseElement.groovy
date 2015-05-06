@@ -71,10 +71,10 @@ abstract class AndrolateBaseElement {
 
             if (existing) {
                 existing.each { existstring ->
-                    existstring.value = translatedResources[0].getTranslatedText()
+                    existstring.value = AndrolateUtils.googleTranslateResolve(translatedResources[0].getTranslatedText())
                 }
             } else {
-                def newnode = destxml.appendNode('string', translatedResources[0].getTranslatedText())
+                def newnode = destxml.appendNode('string', AndrolateUtils.googleTranslateResolve(translatedResources[0].getTranslatedText()))
                 newnode.'@name' = string_name
             }
         }

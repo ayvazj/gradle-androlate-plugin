@@ -52,7 +52,7 @@ class AndrolateTranslateTask extends DefaultTask {
                 xstrings,
                 "${lang}"
         )
-        translateRequest.setFormat('text')
+        translateRequest.setFormat('html')
         translateRequest.setKey("${androlate.apiKey}")
         def translateResponse = translateRequest.execute()
         xlated_strings.addAll(translateResponse.getTranslations())
@@ -76,15 +76,16 @@ class AndrolateTranslateTask extends DefaultTask {
             def elem_texts = elem.text()
             if (elem_texts) {
                 elem_texts.each { string_text ->
+                    def procstring = AndrolateUtils.googleTranslateEscape(string_text, lang)
                     // request has to be less than 2K GET or 5K POST
                     if (charcount < 2048) {
-                        xstrings.add(string_text)
-                        charcount += StringEscapeUtils.escapeHtml(string_text).length() + 3
+                        xstrings.add(procstring)
+                        charcount += StringEscapeUtils.escapeHtml(procstring).length() + 3
                     } else {
                         executeTranslationRequest(xstrings, xlated_strings, lang)
                         xstrings.clear()
-                        xstrings.add(string_text)
-                        charcount += string_text.length()
+                        xstrings.add(procstring)
+                        charcount += procstring.length()
                     }
                 }
             }

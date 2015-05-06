@@ -49,6 +49,7 @@ class AndrolateStringArrayElement extends AndrolateBaseElement {
     def public void updateDestXml(Node destxml, List<TranslationsResource> translatedResources) {
         if ("string-array".equals(this.name())) {
             def string_name = this.node.'@name'
+
             def existing = null
             if (destxml.'string-array' && destxml.'string-array'.size() > 0) {
                 existing = destxml.'string-array'.findAll { deststring -> deststring.'@name' == string_name }
@@ -63,8 +64,11 @@ class AndrolateStringArrayElement extends AndrolateBaseElement {
 
             def newnode = destxml.appendNode('string-array')
             newnode.'@name' = string_name
+
+            def i = 0
             translatedResources.each { tr ->
-                newnode.appendNode('item', tr.getTranslatedText())
+                newnode.appendNode('item', AndrolateUtils.googleTranslateResolve(tr.getTranslatedText()))
+                i++
             }
         }
     }
