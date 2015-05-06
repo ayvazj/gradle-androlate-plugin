@@ -60,7 +60,7 @@ class AndrolateExportAppleTask extends DefaultTask {
             throw new GradleScriptException("Unable to create file '${fileName}", null)
         }
 
-        file.append("\"${string_text}\" = \"${string_translation}\"" + System.getProperty("line.separator"))
+        file.append("\"" + AndrolateUtils.convertToMacFormatting(string_text) + "\" = \"" + AndrolateUtils.convertToMacFormatting(string_translation) + "\"" + System.getProperty("line.separator"))
     }
 
     @TaskAction

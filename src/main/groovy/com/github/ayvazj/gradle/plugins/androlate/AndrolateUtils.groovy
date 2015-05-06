@@ -13,6 +13,10 @@ class AndrolateUtils {
             "\$" : "<span class=\"notranslate\">axlate_dollar</span>"
     ]
 
+    def private static final IOS_REPLACE_MAP = [
+            "%s": "%@"
+    ]
+
     def public static getResourceName(dirname) { dirname.tokenize("-")[0] }
 
     def public static getResourceQualifiers(dirname) {
@@ -67,5 +71,37 @@ class AndrolateUtils {
             return string;
         return string.substring(0, index) + replacement
         +string.substring(index + substring.length());
+    }
+
+    /**
+     * Try to convert Java/Android string formatting to Mac/iOS style
+     * @param instr
+     * @return
+     */
+    def public static String convertToAppleFormatting(String instr) {
+        String result = replaceLast(instr, "</span>", "")
+        IOS_REPLACE_MAP.each { k, v ->
+            result = result.replace(k, v)
+        }
+        return result
+    }
+
+    def public static String findBackupFilename(File file) {
+        def (String basename, String ext) = file.getName().split("\\.(?=[^\\.]+\$)");
+        def i = ''
+        def result = null
+        while (true) {
+            result = file.getParentFile().getPath() + System.getProperty("file.separator") + basename + ".bak" + i
+            def File resFile = new File(result)
+            if (!resFile.exists()) {
+                return result
+            }
+            if (!i) {
+                i = 1
+            } else {
+                i++
+            }
+        }
+        return result
     }
 }
