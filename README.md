@@ -117,11 +117,6 @@ In order to avoid unnecessary translations androlate generates an md5 checksum f
 
 Extras tasks were added to help with common translation tasks.
 
-####Export to Microsoft Excel spreadsheet.
-The resulting file will be located under the export/excel directory.
-
-    > ./gradlew -q androlate-export-excel
-
 ####Export strings to iOS / Mac strings.
 The resulting files will be located under the export/apple directory.
 
