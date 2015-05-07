@@ -116,7 +116,7 @@ class AndrolateTranslateTask extends DefaultTask {
         def srcreader = new FileReader(file)
         def srcparser
         try {
-            srcparser = DOMBuilder.newInstance().parse(srcreader)
+            srcparser = DOMBuilder.newInstance(false, true).parse(srcreader)
         }
         catch (Exception e) {
             throw new GradleScriptException("Error parsing ${file.getName()}", e)
@@ -133,12 +133,19 @@ class AndrolateTranslateTask extends DefaultTask {
         }
 
         def List<AndrolateBaseElement> stringsdirty = new ArrayList<AndrolateBaseElement>()
-        srcxml.getChildNodes().each { child ->
-            if ("string".equals(child.getNodeName()) || "string-array".equals(child.getNodeName())) {
-                AndrolateBaseElement abelem = AndrolateBaseElement.newInstance(child)
-                if (abelem.isDirty()) {
-                    abelem.updateMd5()
-                    stringsdirty.add(abelem)
+        def children = srcxml.getChildNodes()
+        if (children && children.length) {
+            children.each { org.w3c.dom.Node child ->
+                if (child.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                    def Element elem = child as org.w3c.dom.Element
+                    if ("string".equals(elem.getTagName()) || "string-array".equals(elem.getTagName())) {
+
+                        AndrolateBaseElement abelem = AndrolateBaseElement.newInstance(child)
+                        if (abelem.isDirty()) {
+                            abelem.updateMd5()
+                            stringsdirty.add(abelem)
+                        }
+                    }
                 }
             }
         }
@@ -173,7 +180,7 @@ class AndrolateTranslateTask extends DefaultTask {
             if (destfile.exists()) {
                 def destreader = new FileReader(destfile)
                 try {
-                    destparser = DOMBuilder.newInstance().parse(destreader)
+                    destparser = DOMBuilder.newInstance(false, true).parse(destreader)
                 }
                 catch (Exception e) {
                     throw new GradleScriptException("Error parsing ${destfile}", e)
@@ -181,7 +188,7 @@ class AndrolateTranslateTask extends DefaultTask {
             } else {
                 // create the destination document
                 try {
-                    destparser = DOMBuilder.newInstance().parseText('''<?xml version='1.0' encoding='utf-8'?>\n<resources></resources>''')
+                    destparser = DOMBuilder.newInstance(false, true).parseText('''<?xml version='1.0' encoding='utf-8'?>\n<resources></resources>''')
                 }
                 catch (Exception e) {
                     throw new GradleScriptException("Error parsing ${destfile}", e)
@@ -193,14 +200,15 @@ class AndrolateTranslateTask extends DefaultTask {
             List<TranslationsResource> xlated_strings = new ArrayList<TranslationsResource>()
             getChunkedTranslations(stringsdirty, xlated_strings, lang)
 
-
             def i = 0
+            def pos = 0
             while (i < stringsdirty.size()) {
                 def incby = stringsdirty[i].getTextCount()
-                if (incby < xlated_strings.size()) {
-                    stringsdirty[i].updateDestXml(destxml, xlated_strings[i..<(i + incby)])
+                if (pos <= xlated_strings.size()) {
+                    stringsdirty[i].updateDestXml(destxml, xlated_strings[pos..<(pos + incby)])
                 }
-                i += incby
+                i++
+                pos += incby
             }
 
             //Save File

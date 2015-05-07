@@ -1,7 +1,14 @@
 package com.github.ayvazj.gradle.plugins.androlate
 
+import groovy.xml.DOMBuilder
+import groovy.xml.XmlUtil
+import org.gradle.api.GradleScriptException
+import org.w3c.dom.Document
+import org.w3c.dom.DocumentFragment
+import org.w3c.dom.Element
+import org.w3c.dom.Node
+
 import java.security.MessageDigest
-import java.util.regex.Pattern
 
 
 class AndrolateUtils {
@@ -48,7 +55,6 @@ class AndrolateUtils {
      * @return
      */
     def public static String googleTranslateEscape(String instr, String lang) {
-
         String result = instr
         REPLACE_MAP.each { String k, String v ->
             result = result.replace(k, "${v}")
@@ -58,7 +64,6 @@ class AndrolateUtils {
     }
 
     def public static String googleTranslateResolve(String instr) {
-
         String result = replaceLast(instr, "</span>", "")
         REPLACE_MAP.each { k, v ->
             result = result.replace(" ${v} ", k)
@@ -106,5 +111,49 @@ class AndrolateUtils {
             }
         }
         return result
+    }
+
+    /**
+     * Returns a string representenation of all the textContent including mixed content
+     * @param elem
+     * @return
+     */
+    def public static String getMixedContent(Node node) {
+        if (node.hasChildNodes()) {
+            def result = ''
+            def children = node.getChildNodes()
+            if (children && children.length) {
+                children.each { org.w3c.dom.Node child ->
+                    if (child.getNodeType() == Node.ELEMENT_NODE) {
+                        def xmlOutput = new StringWriter()
+                        XmlUtil.serialize(child, xmlOutput)
+                        result += xmlOutput.toString().replaceAll("<\\?.*\\?>", "")
+                    } else {
+                        result += child.getNodeValue()
+                    }
+                }
+            }
+            return result
+        }
+        return node.getNodeValue()
+    }
+
+    def public static Element getMixedNodes(Element element, String s) {
+
+        def parser = null
+
+        // create the destination document
+        try {
+            parser = DOMBuilder.newInstance(false, true).parseText('''<?xml version='1.0' encoding='utf-8'?>\n<androlate>''' + s + '''</androlate>''')
+        }
+        catch (Exception e) {
+            throw new GradleScriptException("Error parsing getMixedNodes", e)
+        }
+
+        if (parser == null) {
+            return null
+        }
+
+        return parser.documentElement
     }
 }

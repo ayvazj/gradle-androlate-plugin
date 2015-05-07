@@ -1,6 +1,7 @@
 package com.github.ayvazj.gradle.plugins.androlate
 
 import com.google.api.services.translate.model.TranslationsResource
+import org.w3c.dom.DocumentFragment
 import org.w3c.dom.Element
 
 
@@ -45,7 +46,7 @@ abstract class AndrolateBaseElement {
 
     def public String[] text() {
         if (this.node) {
-            return [this.node.getTextContent()]
+            return [AndrolateUtils.getMixedContent(this.node)]
         }
         return null
     }
@@ -75,13 +76,25 @@ abstract class AndrolateBaseElement {
 
             if (existing) {
                 existing.each { Element existstring ->
-                    existstring.setTextContent(AndrolateUtils.googleTranslateResolve(translatedResources[0].getTranslatedText()))
+                    existstring.setNodeValue(AndrolateUtils.googleTranslateResolve(translatedResources[0].getTranslatedText()))
                 }
             } else {
                 def Element newelem = destxml.getOwnerDocument().createElement('string')
                 newelem.setAttribute('name', string_name)
-                newelem.setTextContent(AndrolateUtils.googleTranslateResolve(translatedResources[0].getTranslatedText()))
+                if (this.node.hasChildNodes() && this.node.getFirstChild().getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE) {
+                    def cdata = destxml.getOwnerDocument().createCDATASection(AndrolateUtils.googleTranslateResolve(translatedResources[0].getTranslatedText()))
+                    newelem.appendChild(cdata)
+                } else {
+                    def alltext = AndrolateUtils.googleTranslateResolve(translatedResources[0].getTranslatedText())
+                    def Element mixedNodes = AndrolateUtils.getMixedNodes(destxml, alltext)
+                    mixedNodes.getChildNodes().each { node ->
+                        def importedNode = destxml.getOwnerDocument().importNode(node, true)
+                        newelem.appendChild(importedNode)
+                    }
+                }
+
                 destxml.appendChild(newelem)
+
             }
         }
         return

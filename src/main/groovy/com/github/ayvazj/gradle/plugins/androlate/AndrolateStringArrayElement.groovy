@@ -77,13 +77,17 @@ class AndrolateStringArrayElement extends AndrolateBaseElement {
             newelem.setAttribute('name', string_name)
 
             translatedResources.each { tr ->
+                def alltext = AndrolateUtils.googleTranslateResolve(tr.getTranslatedText())
+                def Element mixedNodes = AndrolateUtils.getMixedNodes(destxml, alltext)
+
                 def Element newItem = destxml.getOwnerDocument().createElement('item')
-                newItem.setTextContent(AndrolateUtils.googleTranslateResolve(tr.getTranslatedText()))
+                mixedNodes.getChildNodes().each { node ->
+                    def importedNode = destxml.getOwnerDocument().importNode(node, true)
+                    newItem.appendChild(importedNode)
+                }
                 newelem.appendChild(newItem)
             }
-
             destxml.appendChild(newelem)
         }
-        return
     }
 }
