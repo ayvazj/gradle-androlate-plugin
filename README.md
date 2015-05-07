@@ -3,6 +3,10 @@
 This plugin translates the string resources in your Android project using the
 [Google Translate] (https://translate.google.com/).  It also provides a few extras tasks to help with common translation tasks.
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/ayvazj/gradle-androlate-plugin/master/docs/png/androlate-droid.png" alt="Androlate Logo">
+</p>
+
 LEGAL INFORMATION
 ---------------------
 
@@ -117,9 +121,16 @@ In order to avoid unnecessary translations androlate generates an md5 checksum f
 
 Extras tasks were added to help with common translation tasks.
 
+####Export to Microsoft Excel spreadsheet.
+The resulting file will be located under the export/excel directory.
+
+    > ./gradlew -q androlate-export-excel
+
 ####Export strings to iOS / Mac strings.
 The resulting files will be located under the export/apple directory.
 
     > ./gradlew -q androlate-export-apple
 
 
+[doc]: http://ayvazj.github.io/gradle-androlate-plugin/doc/latest/
+[javadoc]: http://ayvazj.github.io/gradle-androlate-plugin/doc/latest/javadoc/
