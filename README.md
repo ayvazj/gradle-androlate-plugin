@@ -123,5 +123,3 @@ The resulting files will be located under the export/apple directory.
     > ./gradlew -q androlate-export-apple
 
 
-[doc]: http://ayvazj.github.io/gradle-androlate-plugin/doc/latest/
-[javadoc]: http://ayvazj.github.io/gradle-androlate-plugin/doc/latest/javadoc/
