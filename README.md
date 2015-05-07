@@ -1,7 +1,7 @@
 # Androlate Gradle Plugin
 
 This plugin translates the string resources in your Android project using the
-[Google Translate] (https://translate.google.com/).  It also provides a few extras tasks to help with common translation tasks.
+[Google Translate] (https://translate.google.com/).  It also provides a few extras to help with common translation tasks.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/ayvazj/gradle-androlate-plugin/master/docs/png/androlate-droid.png" alt="Androlate Logo">
@@ -45,14 +45,14 @@ IMPORTANT INFORMATION
 KNOWN ISSUES
 ------------
 
- * [Google Translate] (https://translate.google.com/) may jumble words around as it was designed for natural language.
+ * [Google Translate] (https://translate.google.com/) may shuffle words around since it is designed for natural language translations.
  
      Example: Line1 nl Line2 nl Line3 => Línea 1 Línea 2 nl nl Line3
 
- * Some escape and formatting characters may not work (\\n)
+ * Some escape and formatting characters may not work (\\n, %1$s).  You will need to review the generated strings and correct mistakes manually.
 
- * Embedded html markup may be stripped by the Google Translate API (i.e. Hello <b>World!</b>)
- * <![CDATA[]]> sections inside <string-array> item elements won't be translated.
+ * Embedded html markup may be stripped by the Google Translate API (i.e. Hello &lt;b&gt;World!&lt;/b&gt;)
+ * <![CDATA[]]> sections inside <string-array> item elements won't be translated at this time.
 
 ## Examples
 
@@ -60,30 +60,31 @@ An example projects can be found in [/examples](examples).
 
 ## Usage
 
-Add the androlate plug to your *modules* build.gradle file below your android plugin
+Modify your **modules** build.gradle file, not the project's root build.gradle file.
+
+Add the androlate plug buildscript.dependencies section
 
     buildscript {
         repositories {
             jcenter()
-            maven {
-                url  "https://dl.bintray.com/ayvazj/maven"
-            }
         }
         dependencies {
             classpath('com.github.ayvazj.gradle.plugins.androlate:androlate:0.1')
         }
     }
 
+Apply the plugin after the 'com.android.application' or 'com.android.library' plugins
+
     apply plugin: 'com.android.application'
     apply plugin: 'androlate'
 
-Add the following section at the end of your build.gradle file
+Add the following section to your build.gradle file
 
     androlate {
         appName 'API Project'
-    	apiKey '********************************'
-    	defaultLanguage 'en'
-    	targetLanguages = ['es']
+        apiKey '********************************'
+        defaultLanguage 'en'
+        targetLanguages = ['es']
     }
 
 Where:

@@ -1,14 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?><resources xmlns:androlate="http://com.github.androlate">
-  <string name="app_name" >hello World</string>
-  <string name="hello_world" androlate:md5="6f269d190d2c85f6e0468ceca42a20">Hello world!</string>
-  <string name="action_settings" androlate:md5="f70727dc34561dfde1a3c529b6205c">Settings</string>
-  <string name="app_name2" androlate:md5="b108db16e0754105b7a99be72e3fe5">Hello World</string>
-
-  <string name="new_line_test">Line1\nLine2\nLine3</string>
+<?xml version="1.0" encoding="UTF-8"?><resources xmlns:xandrolate="http://com.github.androlate">
+  <string name="app_name">hello World</string>
+  <string name="hello_world">Hello world!</string>
+  <string name="action_settings">Settings</string>
+  <string name="app_name2">Hello World</string>
+  <string name="new_line_test">Line 1\nLine 2\nLine 3</string>
   <string name="param_test">Hello %1$s, nice to meet you my name is %2$s</string>
-  <string-array name="array-test">
+  <string-array name="array_test">
     <item>String arrays are tricky</item>
     <item>So to keep it simple</item>
     <item>just translate the entire array together</item>
   </string-array>
+  <string name="html">Welcome to <b>Android</b>!</string>
+  <string name="cdata"><![CDATA[There we have some text]]></string>
 </resources>
