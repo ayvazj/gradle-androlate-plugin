@@ -22,7 +22,7 @@ class AndrolateUtils {
     ]
 
     def private static final IOS_REPLACE_MAP = [
-            "%s": "%@"
+            "\\%.*?s": "%@"
     ]
 
     def public static getResourceName(dirname) { dirname.tokenize("-")[0] }
@@ -89,7 +89,7 @@ class AndrolateUtils {
     def public static String convertToAppleFormatting(String instr) {
         String result = instr
         IOS_REPLACE_MAP.each { k, v ->
-            result = result.replace(k, v)
+            result = result.replaceAll(k, v)
         }
         return result
     }
@@ -127,7 +127,7 @@ class AndrolateUtils {
                     if (child.getNodeType() == Node.ELEMENT_NODE) {
                         def xmlOutput = new StringWriter()
                         XmlUtil.serialize(child, xmlOutput)
-                        result += xmlOutput.toString().replaceAll("<\\?.*\\?>", "")
+                        result += xmlOutput.toString().replaceAll("<\\?.*\\?>", "").trim()
                     } else {
                         result += child.getNodeValue()
                     }

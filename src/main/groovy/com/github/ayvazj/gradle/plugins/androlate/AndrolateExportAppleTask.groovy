@@ -1,8 +1,10 @@
 package com.github.ayvazj.gradle.plugins.androlate
 
+import groovy.xml.DOMBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleScriptException
 import org.gradle.api.tasks.TaskAction
+import org.w3c.dom.Element
 
 class AndrolateExportAppleTask extends DefaultTask {
 
@@ -19,22 +21,33 @@ class AndrolateExportAppleTask extends DefaultTask {
         def dirname = dir.getName()
         def resource_qualifiers = AndrolateUtils.getResourceQualifiers(dirname)
 
-        def srcparser = new XmlParser()
-        def srcxml = srcparser.parse(file)
+        def srcparser
+
+        if (file.exists()) {
+            def destreader = new FileReader(file)
+            try {
+                srcparser = DOMBuilder.newInstance(false, true).parse(destreader)
+            }
+            catch (Exception e) {
+                throw new GradleScriptException("Error parsing ${destfile}", e)
+            }
+        }
+
+        def Element srcxml = srcparser.documentElement
 
         // ignore XML files that are not resource files
-        if (!srcxml.name().equals('resources')) {
+        if (!srcxml.getTagName().equals('resources')) {
             return
         }
 
-        def stringElems = srcxml.string
-        if (!stringElems || stringElems.size() == 0) {
+        def stringElems = srcxml.getElementsByTagName('string')
+        if (!stringElems || stringElems.length == 0) {
             return;
         }
 
-        stringElems.each { string ->
-            def string_name = string.'@name'
-            def string_text = string.text()
+        stringElems.each { Element string ->
+            def string_name = string.getAttribute('name')
+            def string_text = AndrolateUtils.getMixedContent(string)
 
             if (!data.containsKey(string_name)) {
                 data[string_name] = [:]
@@ -60,7 +73,7 @@ class AndrolateExportAppleTask extends DefaultTask {
             throw new GradleScriptException("Unable to create file '${fileName}", null)
         }
 
-        file.append("\"" + AndrolateUtils.convertToMacFormatting(string_text) + "\" = \"" + AndrolateUtils.convertToMacFormatting(string_translation) + "\"" + System.getProperty("line.separator"))
+        file.append("\"" + AndrolateUtils.convertToAppleFormatting(string_text) + "\" = \"" + AndrolateUtils.convertToAppleFormatting(string_translation) + "\"" + System.getProperty("line.separator"))
     }
 
     @TaskAction
@@ -88,12 +101,10 @@ class AndrolateExportAppleTask extends DefaultTask {
 
         data.each { string_name, qualifiers ->
             // each resource type (i.e. values-* )
-            println("${string_name}")
             qualifiers.each { qualkey, qualval ->
                 if ("__default__".equals(qualkey)) {
                     appendLocalizableStrings("export/apple/Localizable.strings", data[string_name]['__default__'], data[string_name]["__default__"])
-                }
-                else {
+                } else {
                     appendLocalizableStrings("export/apple/${qualkey}/Localizable.strings", data[string_name]['__default__'], data[string_name][qualkey])
                 }
             }
