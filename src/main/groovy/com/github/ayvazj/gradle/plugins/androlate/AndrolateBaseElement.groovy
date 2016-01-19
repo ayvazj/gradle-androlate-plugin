@@ -86,10 +86,23 @@ abstract class AndrolateBaseElement {
                     newelem.appendChild(cdata)
                 } else {
                     def alltext = AndrolateUtils.googleTranslateResolve(translatedResources[0].getTranslatedText())
-                    def Element mixedNodes = AndrolateUtils.getMixedNodes(destxml, alltext)
-                    mixedNodes.getChildNodes().each { node ->
-                        def importedNode = destxml.getOwnerDocument().importNode(node, true)
-                        newelem.appendChild(importedNode)
+                    def Element mixedNodes = null
+
+                    try {
+                        mixedNodes = AndrolateUtils.getMixedNodes(destxml, alltext)
+                    }
+                    catch(Exception ex) {
+                        System.err << "Unable to translate string: name=${string_name}"
+                        System.err << ex
+                    }
+                    if (mixedNodes) {
+                        mixedNodes.getChildNodes().each { node ->
+                            def importedNode = destxml.getOwnerDocument().importNode(node, true)
+                            newelem.appendChild(importedNode)
+                        }
+                    }
+                    else {
+                        System.err << "Unable to translate string: name=${string_name}"
                     }
                 }
 
