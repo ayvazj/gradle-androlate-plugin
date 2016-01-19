@@ -1,9 +1,10 @@
 buildscript {
     repositories {
         jcenter()
+        mavenLocal()
     }
     dependencies {
-        classpath('com.github.ayvazj.gradle.plugins.androlate:androlate:0.1')
+        classpath('com.github.ayvazj.gradle.plugins.androlate:androlate:0.2')
     }
 }
 
@@ -40,6 +41,6 @@ androlate {
     appName 'API Project'
     apiKey GOOGLE_TRANSLATE_API_KEY
     defaultLanguage 'en'
-    targetLanguages = ['es', 'ja']
+    targetLanguages = ['es', 'ja', 'zh-CN']
 }
 

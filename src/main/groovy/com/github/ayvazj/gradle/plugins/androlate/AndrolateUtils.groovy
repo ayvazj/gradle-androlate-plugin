@@ -144,7 +144,8 @@ class AndrolateUtils {
 
         // create the destination document
         try {
-            parser = DOMBuilder.newInstance(false, true).parseText('''<?xml version='1.0' encoding='utf-8'?>\n<androlate>''' + s + '''</androlate>''')
+            println("s => [${s}]");
+            parser = DOMBuilder.newInstance(false, true).parseText("<?xml version='1.0' encoding='utf-8'?>\n<androlate>${s}</androlate>")
         }
         catch (Exception e) {
             throw new GradleScriptException("Error parsing getMixedNodes", e)

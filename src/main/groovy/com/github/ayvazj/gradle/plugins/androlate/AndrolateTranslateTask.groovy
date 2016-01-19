@@ -168,7 +168,10 @@ class AndrolateTranslateTask extends DefaultTask {
 
         file.renameTo(backfn)
         def outwriter = new FileWriter(file.getPath())
+        def fos = new FileOutputStream(file.getPath());
+        def osw = new OutputStreamWriter(fos,"UTF-8");
         XmlUtil.serialize(srcxml, outwriter)
+        osw.close()
 
         androlate.targetLanguages.each { lang ->
             def destdir = new File("${dir.path}-${lang}")
@@ -212,8 +215,10 @@ class AndrolateTranslateTask extends DefaultTask {
             }
 
             //Save File
-            def destwriter = new FileWriter(destfile)
-            XmlUtil.serialize(destxml, destwriter)
+            def destfos = new FileOutputStream(destfile);
+            def destosw = new OutputStreamWriter(destfos,"UTF-8");
+            XmlUtil.serialize(destxml, destosw)
+            destosw.close()
         }
 
     }
