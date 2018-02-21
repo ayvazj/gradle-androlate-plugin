@@ -12,6 +12,7 @@ import groovy.xml.XmlUtil
 import org.apache.commons.lang.StringEscapeUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleScriptException
+import org.gradle.api.internal.tasks.options.Option
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.tasks.TaskAction
 import org.w3c.dom.Element
@@ -30,9 +31,11 @@ class AndrolateTranslateTask extends DefaultTask {
     /** Global instance of Translate client */
     Translate translateClient
 
+    @Option(option = "force", description = "Force translation even for non-dirty strings.")
+    boolean force = false
+
 
     AndrolateTranslateTask() {
-        super()
         this.description = 'Translates the default string resources using Google Translate'
         this.androlate = project.androlate
         def httpTransport = GoogleNetHttpTransport.newTrustedTransport()
@@ -102,7 +105,7 @@ class AndrolateTranslateTask extends DefaultTask {
     /**
      * Performs the androlate translation process on an individual resource file
      */
-    void androlateFile(File file) {
+    void androlateFile(File file, boolean force) {
 
         def dir = file.getParentFile()
         def dirname = dir.getName()
@@ -141,7 +144,9 @@ class AndrolateTranslateTask extends DefaultTask {
                     if ("string".equals(elem.getTagName()) || "string-array".equals(elem.getTagName())) {
 
                         AndrolateBaseElement abelem = AndrolateBaseElement.newInstance(child)
-                        if (abelem.isDirty() && abelem.isTranslatable()) {
+                        boolean dirty = abelem.isDirty() || force
+
+                        if (dirty && abelem.isTranslatable()) {
                             abelem.updateMd5()
                             stringsdirty.add(abelem)
                         }
@@ -228,7 +233,6 @@ class AndrolateTranslateTask extends DefaultTask {
 
     @TaskAction
     void androlate() {
-
         if (!androlate.apiKey) {
             throw new GradleScriptException("androlate.apiKey is not defined", null)
         }
@@ -242,7 +246,7 @@ class AndrolateTranslateTask extends DefaultTask {
 
         // TODO revist to find a more optimal way of locating strings.xml
         project.fileTree(dir: 'src', include: '**/*.xml').each { File file ->
-            androlateFile(file)
+            androlateFile(file, force)
         }
     }
 }
