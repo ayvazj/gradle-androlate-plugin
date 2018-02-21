@@ -141,7 +141,7 @@ class AndrolateTranslateTask extends DefaultTask {
                     if ("string".equals(elem.getTagName()) || "string-array".equals(elem.getTagName())) {
 
                         AndrolateBaseElement abelem = AndrolateBaseElement.newInstance(child)
-                        if (abelem.isDirty()) {
+                        if (abelem.isDirty() && abelem.isTranslatable()) {
                             abelem.updateMd5()
                             stringsdirty.add(abelem)
                         }
@@ -157,16 +157,19 @@ class AndrolateTranslateTask extends DefaultTask {
         // Add the md5 sum to the sources to avoid resending unchanged strings
         srcxml.setAttribute("xmlns:${Androlate.NAMESPACE.prefix}", Androlate.NAMESPACE.getUri().toString())
 
-        // save the modified source file
-        def backfn = AndrolateUtils.findBackupFilename(file)
-        if (!backfn) {
-            throw new GradleScriptException("Unable to create backup file")
+        if (androlate.backup) {
+            // save the modified source file
+            def backfn = AndrolateUtils.findBackupFilename(file)
+            if (!backfn) {
+                throw new GradleScriptException("Unable to create backup file")
+            }
+
+            File backFile = new File(backfn)
+            logger.log(LogLevel.INFO, "Renaming ${file.getName()} to ${backFile.getName()}")
+
+            file.renameTo(backfn)
         }
 
-        File backFile = new File(backfn)
-        logger.log(LogLevel.INFO, "Renaming ${file.getName()} to ${backFile.getName()}")
-
-        file.renameTo(backfn)
         def outwriter = new FileWriter(file.getPath())
         def fos = new FileOutputStream(file.getPath());
         def osw = new OutputStreamWriter(fos,"UTF-8");

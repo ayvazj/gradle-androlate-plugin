@@ -12,4 +12,5 @@
   </string-array>
   <string name="html">Welcome to <b>Android</b>!</string>
   <string name="cdata"><![CDATA[There we have some text]]></string>
+  <string name="not_translated" translatable="false">Not translated</string>
 </resources>

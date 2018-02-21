@@ -36,6 +36,11 @@ abstract class AndrolateBaseElement {
         }
     }
 
+    def public boolean isTranslatable() {
+        // If translatable is false then it isn't - otherwise it is
+        return this.node.getAttribute('translatable') != "false"
+    }
+
     def public boolean isDirty() {
         if (this.node) {
             def md5attr = this.node.getAttributeNodeNS(Androlate.NAMESPACE.uri, 'md5')

@@ -37,7 +37,7 @@ IMPORTANT INFORMATION
  * In order for translations to work you **MUST** have the Google Translate API enabled in the
    [Google Developer Console] (https://console.developers.google.com/).
 
- * YOU **MUST** HAVE BILLIING ENABLED IN ORDER FOR THE TRANSLATE API TO WORK.
+ * YOU **MUST** HAVE BILLING ENABLED IN ORDER FOR THE TRANSLATE API TO WORK.
    This means you must add a credit card to your Google Developer Console account and enable
    for the google translate API.
 
@@ -81,10 +81,11 @@ Apply the plugin after the 'com.android.application' or 'com.android.library' pl
 Add the following section to your build.gradle file
 
     androlate {
-        appName 'API Project'
-        apiKey '********************************'
-        defaultLanguage 'en'
+        appName = 'API Project'
+        apiKey = '********************************'
+        defaultLanguage = 'en'
         targetLanguages = ['es']
+        backup = true
     }
 
 Where:
@@ -103,6 +104,9 @@ Where:
     targetLanguages
         A list of languages you are targeting.  Keep in mind androlate will submit each string to
         [Google Translate] (https://translate.google.com/) so complete translations may take a while and result in fees.
+
+    backup
+        True if string files should be backed up before modification.
 
 
 Run the androlate target to translate the string resources
