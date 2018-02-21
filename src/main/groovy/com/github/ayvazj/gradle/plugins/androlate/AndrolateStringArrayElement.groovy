@@ -20,9 +20,8 @@ class AndrolateStringArrayElement extends AndrolateBaseElement {
                 }
             }
             this.md5txt = AndrolateUtils.md5sum(item_concat)
-            return this.md5txt
         }
-        return null;
+        return this.md5txt
     }
 
     @Override
