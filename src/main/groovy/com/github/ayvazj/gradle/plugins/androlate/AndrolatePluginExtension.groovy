@@ -7,6 +7,7 @@ class AndrolatePluginExtension {
     def targetLanguages
     def String apiKey
     def String appName
+    def boolean backup
     private final Project project
 
     public AndrolatePluginExtension(Project project) {
@@ -14,6 +15,7 @@ class AndrolatePluginExtension {
         this.defaultLanguage = 'en'
         this.targetLanguages = []
         this.apiKey = ''
+        this.backup = true
         this.appName = null
     }
 }

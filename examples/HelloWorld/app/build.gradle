@@ -38,9 +38,10 @@ dependencies {
 
 
 androlate {
-    appName 'API Project'
-    apiKey GOOGLE_TRANSLATE_API_KEY
-    defaultLanguage 'en'
+    appName = 'API Project'
+    apiKey = GOOGLE_TRANSLATE_API_KEY
+    defaultLanguage ='en'
     targetLanguages = ['es', 'ja', 'zh-CN']
+    backup = true
 }
 

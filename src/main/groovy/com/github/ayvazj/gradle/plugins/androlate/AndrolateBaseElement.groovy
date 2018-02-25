@@ -1,7 +1,6 @@
 package com.github.ayvazj.gradle.plugins.androlate
 
 import com.google.api.services.translate.model.TranslationsResource
-import org.w3c.dom.DocumentFragment
 import org.w3c.dom.Element
 
 
@@ -19,10 +18,9 @@ abstract class AndrolateBaseElement {
 
     def public String md5() {
         if (this.node && !this.md5txt) {
-            this.md5txt = AndrolateUtils.md5sum("${this.node.getTextContent()}")
-            return this.md5txt
+            this.md5txt = AndrolateUtils.md5sum(this.node.getTextContent())
         }
-        return null;
+        return this.md5txt
     }
 
     /**
@@ -30,18 +28,22 @@ abstract class AndrolateBaseElement {
      */
     def public void updateMd5() {
         if (this.node) {
-            md5()
-            this.node.setAttributeNS(Androlate.NAMESPACE.uri, "${Androlate.NAMESPACE.prefix}:md5", this.md5txt)
+            this.node.setAttributeNS(Androlate.NAMESPACE.uri, "${Androlate.NAMESPACE.prefix}:md5", md5())
             this.node.setAttribute('name', this.node.getAttribute('name'))
         }
     }
 
+    def public boolean isTranslatable() {
+        // If translatable is false then it isn't - otherwise it is
+        return this.node.getAttribute('translatable') != "false"
+    }
+
     def public boolean isDirty() {
         if (this.node) {
-            def md5attr = this.node.getAttributeNodeNS(Androlate.NAMESPACE.uri, 'md5')
-            return (!md5().equals(md5attr))
+            def md5attr = this.node.getAttributeNS(Androlate.NAMESPACE.uri, 'md5')
+            return md5() != md5attr
         }
-        return true;
+        return true
     }
 
     def public String[] text() {
