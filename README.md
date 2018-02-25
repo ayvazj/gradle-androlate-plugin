@@ -69,7 +69,7 @@ Add the androlate plug buildscript.dependencies section
             jcenter()
         }
         dependencies {
-            classpath('com.github.ayvazj.gradle.plugins.androlate:androlate:0.1')
+            classpath('com.github.ayvazj.gradle.plugins.androlate:androlate:0.3')
         }
     }
 
